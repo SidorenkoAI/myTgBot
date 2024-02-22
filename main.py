@@ -20,6 +20,20 @@ def givePhoto(date: str) -> (str, str):
     urlPhoto = res['url']
     return (urlPhoto, explanation)
 
+def checkDate(userData: str) -> bool:
+    ch = "0123456789-"
+    counter = 0
+    if len(userData) == 10:
+        if userData.count("-") == 2:
+            if userData.find("-") == 4 and userData.rfind("-") == 7:
+                if (userData[0:4] != "0000" and (userData[5:7] != "00" and int(userData[5:7]) <= 12)
+                        and (userData[8:] != "00"and int(userData[8:]) <= 31)):
+                    for k in range(len(userData)):
+                        if userData[k] in ch:
+                            counter += 1
+                    if counter == 10:
+                        return True
+    return False
 
 import time
 offset = -2
@@ -32,13 +46,19 @@ while True:
         offset = response['result'][0]['update_id']
         userText = response['result'][0]['message']['text']
         chatID = response['result'][0]['message']['chat']['id']
-        photoURL, photoExp = givePhoto(userText)
-        endPoint = f'https://api.telegram.org/bot{token}/sendPhoto'
-        params = {'chat_id': chatID, 'photo': photoURL}
-        res = requests.get(endPoint, params=params)
-        endPoint = f'https://api.telegram.org/bot{token}/sendMessage'
-        params = {'chat_id': chatID, 'text': photoExp}
-        res = requests.get(endPoint, params=params)
+        if checkDate(userText):
+            photoURL, photoExp = givePhoto(userText)
+            endPoint = f'https://api.telegram.org/bot{token}/sendPhoto'
+            params = {'chat_id': chatID, 'photo': photoURL}
+            res = requests.get(endPoint, params=params)
+            endPoint = f'https://api.telegram.org/bot{token}/sendMessage'
+            params = {'chat_id': chatID, 'text': photoExp}
+            res = requests.get(endPoint, params=params)
+        else:
+            endPoint = f'https://api.telegram.org/bot{token}/sendMessage'
+            params = {'chat_id': chatID, 'text': 'Нужна дата в формате ГГГГ-ММ-ДД'}
+            res = requests.get(endPoint, params=params)
+
     time.sleep(1)
 
 
