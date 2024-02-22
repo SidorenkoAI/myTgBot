@@ -4,14 +4,6 @@ with open('token.txt') as f:
     token = f.read()
 
 
-# endPoint = f'https://api.telegram.org/bot{token}/getUpdates'
-# param = {'offset': -1}
-# response = requests.get(endPoint, params=param).json()
-# pprint.pprint(response)
-# offset работает как срезы в питоне
-# a = [1,2,3,4,5,6,7,8]
-# print(a[-1:])
-
 def givePhoto(date: str) -> (str, str):
     endPoint = 'https://api.nasa.gov/planetary/apod'
     params = {'api_key': 'DEMO_KEY', 'date': date}
@@ -20,20 +12,21 @@ def givePhoto(date: str) -> (str, str):
     urlPhoto = res['url']
     return (urlPhoto, explanation)
 
-def checkDate(userData: str) -> bool:
-    ch = "0123456789-"
-    counter = 0
-    if len(userData) == 10:
-        if userData.count("-") == 2:
-            if userData.find("-") == 4 and userData.rfind("-") == 7:
-                if (userData[0:4] != "0000" and (userData[5:7] != "00" and int(userData[5:7]) <= 12)
-                        and (userData[8:] != "00"and int(userData[8:]) <= 31)):
-                    for k in range(len(userData)):
-                        if userData[k] in ch:
-                            counter += 1
-                    if counter == 10:
-                        return True
-    return False
+def checkDate(date: str) -> bool:
+    if len(date) != 10:
+        return False
+    lst = date.split('-')
+    if len(lst) != 3:
+        return False
+    if not all([len(lst[0]) == 4, len(lst[1]) == 2, len(lst[2]) == 2]):
+        return False
+    for item in lst:
+        if not all(map(lambda x: x.isdigit(), item)):
+            return False
+    year, month, day = int(lst[0]), int(lst[1]), int(lst[2])
+    if not all([2000 <= year <= 2024, 1 <= month <= 12, 1 <= day <= 31]):
+        return False
+    return True
 
 import time
 offset = -2
@@ -64,33 +57,4 @@ while True:
 
 
 
-# endPoint = f'https://api.telegram.org/bot{token}/getUpdates'
-# res = requests.get(endPoint)
-# pprint.pprint(res.json())
-# endPoint = f'https://api.telegram.org/bot{token}/sendPhoto'
-# params = {'chat_id': '598002945', 'photo': urlPhoto}
-# res = requests.get(endPoint, params=params)
 
-# #получить информацию по всем событиям (апдейтам)
-# endPoint = f'https://api.telegram.org/bot{token}/getUpdates'
-# param = {'offset': 29751288}
-# response = requests.get(endPoint, params=param).json()
-# pprint.pprint(response)
-
-# usersInfo = dict()
-# for i in response:
-#     chatID = i['message']['chat']['id']
-#     userName = i['message']['chat']['first_name']
-#     if 'text' in i['message']:
-#         userText = i['message']['text']
-#     usersInfo[chatID] = [userName, userText]
-#
-#
-# print(usersInfo)
-# #отправить сообщение в чат
-# endPoint = f'https://api.telegram.org/bot{token}/sendMessage'
-# for user in usersInfo:
-#     mes = f'Привет, {usersInfo[user][0]}!'
-#     params = {'chat_id': user, 'text': mes}
-#     res = requests.get(endPoint, params=params)
-#
