@@ -3,30 +3,32 @@ import pprint
 with open('token.txt') as f:
     token = f.read()
 
-import requests
+
+def giveAnimation(answer: str) -> str:
+    endPoint = f'https://yesno.wtf/api?force={answer}'
+    res = requests.get(endPoint).json()
+    return res['image']
+
+
 import time
-
-TOKEN = token
-URL = 'https://api.telegram.org/bot'
-
+offset = -2
 while True:
-    response = requests.get('https://api.thecatapi.com/v1/images/search')
-    data = response.json()
-    url_img = data[0]['url']
+    #получить информацию по всем событиям (апдейтам)
+    endPoint = f'https://api.telegram.org/bot{token}/getUpdates'
+    param = {'offset': offset + 1}
+    response = requests.get(endPoint, params=param).json()
+    if response['result']:
+        offset = response['result'][0]['update_id']
+        userText = response['result'][0]['message']['text']
+        chatID = response['result'][0]['message']['chat']['id']
 
-    response = requests.get(URL + TOKEN + "/getUpdates"+"?offset=-1")
-    updates = response.json()
+        endPoint = f'https://api.telegram.org/bot{token}/sendAnimation'
+        params = {'chat_id': chatID, "animation": giveAnimation(userText)}
+        res = requests.get(endPoint, params=params)
+        pprint.pprint(response['result'])
 
-    if updates['result']:
-        message = updates['result'][-1]['message']
-        chat_id = message['chat']['id']
-        text = message['text']
+    time.sleep(1)
 
-        requests.get(f'{URL}{TOKEN}/sendPhoto?chat_id={chat_id}&photo={url_img}')
-
-        time.sleep(1)
-    else:
-        print("Боту сегодня еще никто не писал")
 
 
 
