@@ -5,7 +5,14 @@ with open("token.txt") as f:
     token = f.read()
 
 
-
+from pathlib import Path, WindowsPath
+import random
+def getRandomImg(dir: str) -> WindowsPath:
+    dirPath = Path.cwd()/dir
+    fileinfo = []
+    for file in dirPath.rglob('*'):
+       fileinfo.append(file.name)
+    return dirPath.joinpath(random.choice(fileinfo))
 
 
 
@@ -17,8 +24,6 @@ from aiogram.types import Message, FSInputFile
 # Создаем объекты бота и диспетчера
 bot = Bot(token=token)
 dp = Dispatcher()
-
-
 
 
 # Этот хэндлер будет срабатывать на команду "/start"
@@ -35,21 +40,32 @@ async def process_help_command(message: Message):
         'я пришлю тебе твое сообщение'
     )
 
-def banFilter(message: Message)->bool:
+def checkMsg(message: Message)->bool:
     res = False
     with open('banWords.txt', encoding='utf-8') as f:
         banWords = f.read().split()
-    userText = message.text.split()
-    for word in userText:
-        if word in banWords:
-            res = True
+    if message.text:
+        userText = message.text.split()
+        for word in userText:
+            if word in banWords:
+                res = True
     return res
-
-@dp.message(banFilter)
+def banFilter(userText: str) -> str:
+    with open('banWords.txt', encoding='utf-8') as f:
+        banWords = f.read().split()
+    filteredMes = userText
+    for word in userText.split():
+        if word in banWords:
+            filteredMes = filteredMes.replace(word, "*" * len(word))
+    return filteredMes
+@dp.message(checkMsg)
 async def process_ban(message: Message):
-    await message.answer(text="Так нельзя!")
-    photo = FSInputFile('img/1.jpg')
+    textReplace = (f'{message.from_user.first_name} просил передать: \n'
+                   f'<i>{banFilter(message.text)}</i>')
+    await message.delete()
+    photo = FSInputFile(getRandomImg('img'))
     await bot.send_photo(chat_id=message.from_user.id, photo=photo)
+    await bot.send_message(chat_id=message.from_user.id, text=textReplace, parse_mode='HTML')
 
 
 @dp.message(lambda message: message.text == 'пельмень')
@@ -62,7 +78,7 @@ async def send_echo(message: Message):
 @dp.message()
 async def send_echo(message: Message):
     print(message.model_dump_json(indent=4, exclude_none=True))
-    await message.reply(text=message.text)
+#    await message.send_copy()
 
 
 if __name__ == '__main__':
