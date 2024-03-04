@@ -1,8 +1,10 @@
 import requests
 import json
 import pprint
-with open("token.txt") as f:
-    token = f.read()
+from environs import Env
+env = Env()
+env.read_env()
+token = env('BOT_TOKEN')
 
 
 from pathlib import Path, WindowsPath
