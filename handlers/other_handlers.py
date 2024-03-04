@@ -8,5 +8,4 @@ router = Router()
 # кроме команд "/start" и "/help"
 @router.message()
 async def send_echo(message: Message):
-    print(message.model_dump_json(indent=4, exclude_none=True))
-#    await message.send_copy()
+    await message.answer('Я не понимать..')
