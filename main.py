@@ -17,14 +17,18 @@ def getRandomImg(dir: str) -> WindowsPath:
 
 
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message, FSInputFile, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 # Создаем объекты бота и диспетчера
 bot = Bot(token=token)
 dp = Dispatcher()
 
+key1 = KeyboardButton(text='Да!')
+key2 = KeyboardButton(text='Нет')
+
+keybord = ReplyKeyboardMarkup(keyboard=[[key1, key2]])
 
 # Этот хэндлер будет срабатывать на команду "/start"
 @dp.message(Command(commands=["start"]))
@@ -67,10 +71,16 @@ async def process_ban(message: Message):
     await bot.send_photo(chat_id=message.from_user.id, photo=photo)
     await bot.send_message(chat_id=message.from_user.id, text=textReplace, parse_mode='HTML')
 
+def pelmenFilter(message: Message) -> bool:
+    return message.text == 'пельмень'
 
-@dp.message(lambda message: message.text == 'пельмень')
+@dp.message(pelmenFilter)
 async def send_echo(message: Message):
-    await message.answer(text="Мммм… Пельмешки... \n Со сметанкой...")
+    await message.answer(text="Хочешь пельмешки?", reply_markup=keybord)
+
+@dp.message(F.text == 'Да!')
+async def send_echo(message: Message):
+    await message.answer(text="Мммм… Пельмешки... \n Со сметанкой...", reply_markup=ReplyKeyboardRemove())
 
 
 # Этот хэндлер будет срабатывать на любые ваши текстовые сообщения,
