@@ -2,12 +2,13 @@ from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
 from aiogram import Router, F
 from lexicon.lexicon import LEXICON_RU
+from keyboards.keyboards import yes_no_kb
 
 router = Router()
 # Этот хэндлер будет срабатывать на команду "/start"
 @router.message(Command(commands=["start"]))
 async def process_start_command(message: Message):
-    await message.answer(LEXICON_RU['/start'])
+    await message.answer(LEXICON_RU['/start'], reply_markup=yes_no_kb)
 
 
 # Этот хэндлер будет срабатывать на команду "/help"

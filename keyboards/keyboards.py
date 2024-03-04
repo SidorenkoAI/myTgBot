@@ -1,8 +1,7 @@
-# # Создаем объекты бота и диспетчера
-# bot = Bot(token=token)
-# dp = Dispatcher()
-#
-# key1 = KeyboardButton(text='Да!')
-# key2 = KeyboardButton(text='Нет')
-#
-# keybord = ReplyKeyboardMarkup(keyboard=[[key1, key2]])
+from aiogram import types
+from lexicon.lexicon import LEXICON_RU
+
+yes_key = types.KeyboardButton(text=LEXICON_RU['yes_button'])
+no_key = types.KeyboardButton(text=LEXICON_RU['no_button'])
+
+yes_no_kb = types.ReplyKeyboardMarkup(keyboard=[[yes_key, no_key]])

@@ -1,5 +1,5 @@
-LEXICON_RU: dict[str, str] = {'yes': 'ДА!',
-                              'no': 'НЕТ',
+LEXICON_RU: dict[str, str] = {'yes_button': 'ДА!',
+                              'no_button': 'НЕТ',
                               'cancel': 'Отменить',
                                '/start': 'Привет! Сыграем в карты?',
                                '/help': 'Перетасовать колоду /shuffle \n'
