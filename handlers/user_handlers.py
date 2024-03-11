@@ -36,7 +36,13 @@ async def process_shuffle(message: Message):
 
 
 @router.message(Command(commands=['card']))
-async def process_card(message: Message):
+async def process_card(message: Message,  dbConnect: Connection):
+    cursor = dbConnect.cursor()
+    cursor.execute(f'SELECT allgames, wingames FROM Users WHERE tgid = {message.from_user.id}')
+    userInfo = cursor.fetchall()
+    allgames = userInfo[0][0] + 1
+    wingames = userInfo[0][1]
+    print(userInfo)
     try:
         userUrlPhoto, userValue = await game.getCard()
         botUrlPhoto, botValue = await game.getCard()
@@ -49,7 +55,11 @@ async def process_card(message: Message):
         await message.answer_photo(photo=botUrlPhoto)
         if game.whoWin(userValue, botValue) == 'user':
             await message.answer(text=LEXICON_RU['win'])
+            wingames += 1
         elif game.whoWin(userValue, botValue) == 'bot':
             await message.answer(text=LEXICON_RU['lose'])
         elif game.whoWin(userValue, botValue) == 'draw':
             await message.answer(text=LEXICON_RU['draw'])
+        cursor.execute(
+            f'UPDATE Users SET allgames = {allgames}, wingames = {wingames} WHERE tgid = {message.from_user.id}')
+        dbConnect.commit()
