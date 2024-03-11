@@ -4,13 +4,18 @@ from aiogram import Router, F
 from lexicon.lexicon import LEXICON_RU
 from keyboards.keyboards import yes_no_kb
 from services.card_deck import Game
+from sqlite3 import Connection
 
 
 router = Router()
 game = Game()
 # Этот хэндлер будет срабатывать на команду "/start"
 @router.message(Command(commands=["start"]))
-async def process_start_command(message: Message):
+async def process_start_command(message: Message, dbConnect: Connection):
+    cursor = dbConnect.cursor()
+    cursor.execute('INSERT OR IGNORE INTO Users (tgid, username, allgames, wingames) VALUES (?, ?, ?, ?)',
+                   (message.from_user.id, message.from_user.full_name, 0, 0))
+    dbConnect.commit()
     await message.answer(LEXICON_RU['/start'], reply_markup=yes_no_kb)
 
 
