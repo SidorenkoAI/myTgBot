@@ -25,13 +25,31 @@ async def process_help_command(message: Message):
     await message.answer(LEXICON_RU['/help'])
 
 
-@router.message(F.text == LEXICON_RU['yes_button'])
-async def send_echo(message: Message):
-    await game.shuffle()
+@router.message(Command(commands=['shuffle']))
+async def process_shuffle(message: Message):
+    try:
+        await game.shuffle()
+    except:
+        await message.answer(text=LEXICON_RU['card_err'])
+    else:
+        await message.answer(text=LEXICON_RU['start_game'])
 
 
-@router.message(F.text == LEXICON_RU['no_button'])
-async def send_echo(message: Message):
-    urlPhoto, value = await game.getCard()
-    await message.answer_photo(photo=urlPhoto)
-
+@router.message(Command(commands=['card']))
+async def process_card(message: Message):
+    try:
+        userUrlPhoto, userValue = await game.getCard()
+        botUrlPhoto, botValue = await game.getCard()
+    except AttributeError:
+        await message.answer(text=LEXICON_RU['no_card'])
+    else:
+        await message.answer(text=LEXICON_RU['user_card'])
+        await message.answer_photo(photo=userUrlPhoto)
+        await message.answer(text=LEXICON_RU['bot_card'])
+        await message.answer_photo(photo=botUrlPhoto)
+        if game.whoWin(userValue, botValue) == 'user':
+            await message.answer(text=LEXICON_RU['win'])
+        elif game.whoWin(userValue, botValue) == 'bot':
+            await message.answer(text=LEXICON_RU['lose'])
+        elif game.whoWin(userValue, botValue) == 'draw':
+            await message.answer(text=LEXICON_RU['draw'])

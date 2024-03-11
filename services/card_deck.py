@@ -12,3 +12,11 @@ class Game():
         endPoint = f'https://deckofcardsapi.com/api/deck/{self.deck_id}/draw/?count={count}'
         res = requests.get(endPoint).json()
         return (res['cards'][0]['image'], res['cards'][0]['value'])
+    def whoWin(self, userValue: str, botValue: str)-> str:
+        values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'JACK', 'QUEEN', 'KING', 'ACE']
+        if values.index(userValue) > values.index(botValue):
+            return 'user'
+        elif values.index(userValue) == values.index(botValue):
+            return 'draw'
+        else:
+            return 'bot'
