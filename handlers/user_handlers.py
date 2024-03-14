@@ -7,6 +7,7 @@ from services.card_deck import Game
 from sqlite3 import Connection
 
 
+
 router = Router()
 game = Game()
 # Этот хэндлер будет срабатывать на команду "/start"
