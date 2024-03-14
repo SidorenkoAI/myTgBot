@@ -5,7 +5,7 @@ from lexicon.lexicon import LEXICON_RU
 from keyboards.keyboards import yes_no_kb
 from services.card_deck import Game
 from sqlite3 import Connection
-
+import pprint
 
 
 router = Router()
@@ -64,3 +64,21 @@ async def process_card(message: Message,  dbConnect: Connection):
         cursor.execute(
             f'UPDATE Users SET allgames = {allgames}, wingames = {wingames} WHERE tgid = {message.from_user.id}')
         dbConnect.commit()
+
+
+@router.message(Command(commands=['stat']))
+async def process_card(message: Message,  dbConnect: Connection):
+    cursor = dbConnect.cursor()
+    cursor.execute(f'SELECT * FROM Users')
+    usersInfo = cursor.fetchall()
+    usersInfoSorted = sorted(usersInfo, key=lambda x: x[4]/x[3] if x[3] != 0 else 0, reverse=True)
+    place = 1
+    for user in usersInfoSorted:
+        if user[1] == message.from_user.id:
+            myPlace = place
+            if user[3]:
+                myWinPercent = round((user[4] / user[3]) * 100, 2)
+            else:
+                myWinPercent = 0
+        place += 1
+    await message.answer(text=f'Ваш процент побед {myWinPercent}, вы находитесь на {myPlace} месте')
