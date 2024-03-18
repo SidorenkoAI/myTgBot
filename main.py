@@ -6,7 +6,7 @@ from handlers import other_handlers, user_handlers
 from config_data.config import load_config
 from keyboards.keyboards import set_main_menu
 async def main() -> None:
-    config = load_config(dbPath='/data/database.db')
+    config = load_config(dbPath='data/database.db')
     dbConnect = config.db.getConnect()
     # Создаем объекты бота и диспетчера
     bot = Bot(token=config.tg_bot.token)
