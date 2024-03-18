@@ -18,6 +18,8 @@ class wordGame:
         if indexes:
             for i in indexes:
                self.answer[i] = symb
+            if '_' not in self.answer:
+                return 'win'
             return ' '.join(self.answer)
         else:
             self.counter += 1

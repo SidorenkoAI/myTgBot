@@ -37,7 +37,9 @@ async def process_start_command(message: Message, dbConnect: Connection):
 @router.message(lambda message: len(message.text) == 1)
 async def process_check_symb(message: Message, dbConnect: Connection):
     answer = game.checkSymb(message.text)
-    if answer:
+    if answer == 'win':
+        await message.answer(text=f'Победил {message.from_user.full_name}!')
+    elif answer:
         await message.answer(text=answer)
     else:
         await message.answer(text=game.stop())
