@@ -32,15 +32,23 @@ async def process_start_command(message: Message, dbConnect: Connection):
     # cursor.execute('INSERT OR IGNORE INTO Users (tgid, username, allgames, wingames) VALUES (?, ?, ?, ?)',
     #                (message.from_user.id, message.from_user.full_name, 0, 0))
     # dbConnect.commit()
-    await message.answer(text=game.getWord())
+    if game.status:
+        await message.answer(text='Игра уже запущена! Отгадывайте слово')
+        return
+    try:
+        msg = await game.getWord()
+    except:
+        msg = 'У меня нет слов (('
+    await message.answer(text=msg)
 
-@router.message(lambda message: len(message.text) == 1)
+@router.message(lambda message: len(message.text) == 1 and game.status)
 async def process_check_symb(message: Message, dbConnect: Connection):
     answer = game.checkSymb(message.text)
     if answer == 'win':
         await message.answer(text=f'Победил {message.from_user.full_name}!')
     elif answer:
         await message.answer(text=answer)
+        await message.answer(text=f'Использованные символы: {game.getUsedSymbols()}')
     else:
         await message.answer(text=game.stop())
 
